@@ -1,9 +1,11 @@
 package app
 
 import (
-	"encoding/xml"
+	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type Customer struct {
@@ -19,7 +21,10 @@ func getAllCustomers(w http.ResponseWriter, r *http.Request) {
 	customers := []Customer{
 		{Name: "Kaung Myat", City: "Yangon", Zipcode: "11212"},
 	}
-	w.Header().Add("Content-Type", "application/xml")
-	//w.Header().Add("Content-Type", "application/json")
-	xml.NewEncoder(w).Encode(customers)
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(customers)
+}
+func getCustomer(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Fprint(w, vars["customer_id"])
 }
