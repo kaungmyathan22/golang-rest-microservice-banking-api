@@ -5,13 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/domain"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/service"
 )
 
 func Start() {
 	mux := mux.NewRouter()
-	mux.HandleFunc("/greet", greetHandler)
-	mux.HandleFunc("/customers", getAllCustomers)
-	mux.HandleFunc("/customers/{customer_id}", getCustomer)
+	ch := CustomerHandler{service: service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	mux.HandleFunc("/customers", ch.getAllCustomers)
 	log.Print("Server is running....")
 	http.ListenAndServe("localhost:8000", mux)
 }

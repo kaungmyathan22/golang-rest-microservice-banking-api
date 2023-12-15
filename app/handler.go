@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/service"
 )
 
 type Customer struct {
@@ -14,14 +15,20 @@ type Customer struct {
 	Zipcode string `json:"zipCode" xml:"zipCode"`
 }
 
+type CustomerHandler struct {
+	service service.CustomerService
+}
+
 func greetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello world")
 }
-func getAllCustomers(w http.ResponseWriter, r *http.Request) {
-	customers := []Customer{
-		{Name: "Kaung Myat", City: "Yangon", Zipcode: "11212"},
-	}
+func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Request) {
+	customers, err := ch.service.GetAllCustomer()
 	w.Header().Add("Content-Type", "application/json")
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{"message": "something went wrong...."})
+		return
+	}
 	json.NewEncoder(w).Encode(customers)
 }
 func getCustomer(w http.ResponseWriter, r *http.Request) {
