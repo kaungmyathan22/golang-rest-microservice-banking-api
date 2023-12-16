@@ -2,11 +2,11 @@ package domain
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/exception"
 )
 
 type CustomerRepositoryDb struct {
@@ -25,12 +25,12 @@ func NewCustomerRepositoryDB() CustomerRepositoryDb {
 		client: client,
 	}
 }
-func (d CustomerRepositoryDb) FindAll() ([]Customer, error) {
+func (d CustomerRepositoryDb) FindAll() ([]Customer, *exception.AppError) {
 	sqlStatement := "SELECT customer_id,name,city, zipcode, date_of_birth,status from customers"
 	rows, err := d.client.Query(sqlStatement)
 	if err != nil {
 		log.Println("Error wile querying customer table.", err.Error())
-		return nil, err
+		return nil, exception.HttpInternalServerError("something went wrong.")
 	}
 
 	customers := make([]Customer, 0)
@@ -39,23 +39,23 @@ func (d CustomerRepositoryDb) FindAll() ([]Customer, error) {
 		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
 		if err != nil {
 			log.Println("Error wile querying customer table.", err.Error())
-			return nil, err
+			return nil, exception.HttpInternalServerError("something went wrong.")
 		}
 		customers = append(customers, c)
 	}
 	return customers, nil
 }
-func (d CustomerRepositoryDb) ById(id string) (*Customer, error) {
+func (d CustomerRepositoryDb) ById(id string) (*Customer, *exception.AppError) {
 	customerSql := "select customer_id,name,city,zipcode,date_of_birth,status from customers where customer_id = ?"
 	row := d.client.QueryRow(customerSql, id)
 	var c Customer
 	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("customer not found")
+			return nil, exception.HttpNotFoundException("customer not found.")
 		}
 		log.Println("Error wile querying customer table.", err.Error())
-		return nil, err
+		return nil, exception.HttpInternalServerError("something went wrong.")
 	}
 	return &c, nil
 }

@@ -38,7 +38,7 @@ func (ch *CustomerHandler) getCustomer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode(map[string]string{"message": err.Error()})
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]domain.Customer{

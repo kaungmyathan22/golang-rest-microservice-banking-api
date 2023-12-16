@@ -1,21 +1,24 @@
 package service
 
-import "github.com/kaungmyathan22/golang-rest-microservice-banking-api/domain"
+import (
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/domain"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/exception"
+)
 
 type CustomerService interface {
-	GetAllCustomer() ([]domain.Customer, error)
-	GetCustomer(string) (*domain.Customer, error)
+	GetAllCustomer() ([]domain.Customer, *exception.AppError)
+	GetCustomer(string) (*domain.Customer, *exception.AppError)
 }
 
 type DefaultCustomerService struct {
 	repo domain.CustomerRepository
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, error) {
+func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, *exception.AppError) {
 	return s.repo.FindAll()
 }
 
-func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, error) {
+func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, *exception.AppError) {
 	return s.repo.ById(id)
 }
 
