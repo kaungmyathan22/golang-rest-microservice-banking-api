@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -21,9 +20,6 @@ type CustomerHandler struct {
 	service service.CustomerService
 }
 
-func greetHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello world")
-}
 func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Request) {
 	customers, err := ch.service.GetAllCustomer()
 	w.Header().Add("Content-Type", "application/json")
@@ -34,13 +30,15 @@ func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Reques
 	}
 	json.NewEncoder(w).Encode(customers)
 }
+
 func (ch *CustomerHandler) getCustomer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	customer_id := vars["id"]
 	customer, err := ch.service.GetCustomer(customer_id)
 	if err != nil {
 		log.Println(err)
-		json.NewEncoder(w).Encode(map[string]string{"message": "something went wrong while getting user by id."})
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"message": err.Error()})
 		return
 	}
 	json.NewEncoder(w).Encode(map[string]domain.Customer{
