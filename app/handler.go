@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/domain"
 	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/service"
 )
 
@@ -33,7 +34,17 @@ func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Reques
 	}
 	json.NewEncoder(w).Encode(customers)
 }
-func getCustomer(w http.ResponseWriter, r *http.Request) {
+func (ch *CustomerHandler) getCustomer(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Fprint(w, vars["customer_id"])
+	customer_id := vars["id"]
+	customer, err := ch.service.GetCustomer(customer_id)
+	if err != nil {
+		log.Println(err)
+		json.NewEncoder(w).Encode(map[string]string{"message": "something went wrong while getting user by id."})
+		return
+	}
+	json.NewEncoder(w).Encode(map[string]domain.Customer{
+		"data": *customer,
+	})
+
 }
