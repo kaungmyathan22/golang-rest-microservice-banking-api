@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -26,6 +27,7 @@ func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Reques
 	customers, err := ch.service.GetAllCustomer()
 	w.Header().Add("Content-Type", "application/json")
 	if err != nil {
+		log.Println(err)
 		json.NewEncoder(w).Encode(map[string]string{"message": "something went wrong...."})
 		return
 	}
