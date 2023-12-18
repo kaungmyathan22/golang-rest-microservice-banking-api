@@ -21,11 +21,13 @@ type CustomerHandler struct {
 }
 
 func (ch *CustomerHandler) getAllCustomers(w http.ResponseWriter, r *http.Request) {
-	customers, err := ch.service.GetAllCustomer()
+	statusQuery := r.URL.Query().Get("status")
+	customers, err := ch.service.GetAllCustomer(statusQuery)
 	w.Header().Add("Content-Type", "application/json")
 	if err != nil {
 		log.Println(err)
-		json.NewEncoder(w).Encode(map[string]string{"message": "something went wrong...."})
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 	json.NewEncoder(w).Encode(customers)
