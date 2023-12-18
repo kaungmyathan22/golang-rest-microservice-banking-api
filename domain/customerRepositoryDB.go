@@ -25,8 +25,16 @@ func NewCustomerRepositoryDB() CustomerRepositoryDb {
 		client: client,
 	}
 }
-func (d CustomerRepositoryDb) FindAll() ([]Customer, *exception.AppError) {
-	sqlStatement := "SELECT customer_id,name,city, zipcode, date_of_birth,status from customers"
+func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *exception.AppError) {
+	filterQuery := ""
+	if status != "" {
+		if status == "active" {
+			filterQuery = "where status = 1"
+		} else {
+			filterQuery = "where status = 0"
+		}
+	}
+	sqlStatement := "SELECT customer_id,name,city, zipcode, date_of_birth,status from customers " + filterQuery
 	rows, err := d.client.Query(sqlStatement)
 	if err != nil {
 		log.Println("Error wile querying customer table.", err.Error())
