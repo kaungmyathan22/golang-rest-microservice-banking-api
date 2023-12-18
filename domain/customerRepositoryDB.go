@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/exception"
 )
 
@@ -42,14 +43,10 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *exception.App
 	}
 
 	customers := make([]Customer, 0)
-	for rows.Next() {
-		var c Customer
-		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
-		if err != nil {
-			log.Println("Error wile querying customer table.", err.Error())
-			return nil, exception.HttpInternalServerError("something went wrong.")
-		}
-		customers = append(customers, c)
+	err = sqlx.StructScan(rows, &customers)
+	if err != nil {
+		log.Println("Error wile querying customer table.", err.Error())
+		return nil, exception.HttpInternalServerError("something went wrong.")
 	}
 	return customers, nil
 }
