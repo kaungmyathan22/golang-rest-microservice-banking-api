@@ -5,7 +5,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var Log *zap.Logger
+var log *zap.Logger
 
 func init() {
 	var err error
@@ -14,8 +14,24 @@ func init() {
 	encoderConfig.TimeKey = "timestamp"
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	config.EncoderConfig = encoderConfig
-	Log, err = config.Build()
+	log, err = config.Build()
 	if err != nil {
 		panic(err)
 	}
+}
+
+func Info(message string, fields ...zap.Field) {
+	log.Info(message, fields...)
+}
+
+func Fatal(message string, fields ...zap.Field) {
+	log.Fatal(message, fields...)
+}
+
+func Debug(message string, fields ...zap.Field) {
+	log.Debug(message, fields...)
+}
+
+func Error(message string, fields ...zap.Field) {
+	log.Error(message, fields...)
 }
