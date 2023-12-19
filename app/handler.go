@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/domain"
 	"github.com/kaungmyathan22/golang-rest-microservice-banking-api/service"
 )
 
@@ -43,8 +42,7 @@ func (ch *CustomerHandler) getCustomer(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]domain.Customer{
-		"data": *customer,
-	})
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(customer)
 
 }
