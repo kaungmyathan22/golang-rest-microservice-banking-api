@@ -11,11 +11,11 @@ import (
 )
 
 type CustomerRepositoryDb struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
 func NewCustomerRepositoryDB() CustomerRepositoryDb {
-	client, err := sql.Open("mysql", "kaung:kaung@/banking")
+	client, err := sqlx.Open("mysql", "kaung:kaung@/banking")
 	if err != nil {
 		panic(err)
 	}
@@ -36,25 +36,19 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *exception.App
 		}
 	}
 	sqlStatement := "SELECT customer_id,name,city, zipcode, date_of_birth,status from customers " + filterQuery
-	rows, err := d.client.Query(sqlStatement)
-	if err != nil {
-		log.Println("Error wile querying customer table.", err.Error())
-		return nil, exception.HttpInternalServerError("something went wrong.")
-	}
-
 	customers := make([]Customer, 0)
-	err = sqlx.StructScan(rows, &customers)
+	err := d.client.Select(&customers, sqlStatement)
 	if err != nil {
 		log.Println("Error wile querying customer table.", err.Error())
 		return nil, exception.HttpInternalServerError("something went wrong.")
 	}
 	return customers, nil
 }
+
 func (d CustomerRepositoryDb) ById(id string) (*Customer, *exception.AppError) {
 	customerSql := "select customer_id,name,city,zipcode,date_of_birth,status from customers where customer_id = ?"
-	row := d.client.QueryRow(customerSql, id)
 	var c Customer
-	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
+	err := d.client.Get(&c, customerSql, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, exception.HttpNotFoundException("customer not found.")
